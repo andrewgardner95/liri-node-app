@@ -5,6 +5,7 @@ var twitterKeys = require("./keys.js");
 var request = require("request");
 // Load the fs package to read and write
 var fs = require("fs");
+var twitter = require('twitter');
 
 // the command is the third word in the terminal string
 var command = process.argv[2];
@@ -13,7 +14,31 @@ var command = process.argv[2];
 var nodeArgs = process.argv;
 
 if (command === "my-tweets") {
-	console.log("dogs");
+	//Set up an empty array to hold the tweets.
+	var results = [];
+
+ 	// storing key into client variable
+ 	var client = new twitter({
+  		consumer_key: 'nkPsMKOGAWN75vp2NJLU1nJSb',
+  		consumer_secret: 'XcjTSNhu44IJkji67Ca1i450955t7bddloAqfe3V4li3qNZNnp',
+  		access_token_key: '847963513867845632-eO73nNW4EvxBSpGGZkzyH8PaVuI2LRD',
+  		access_token_secret: '9QXd0AO5yq2qt3xWOPGBdh7ewTM7KKNPyXbAd4pUx6mwS',
+	});
+
+ 	// passing through my twitter user name
+  	var params = {
+    	screen_name: 'andrew_ucsd'
+  	};
+
+  	// logging tweets from newest to oldest
+  	client.get('statuses/user_timeline', params, function(error, tweets, response) {
+    	if (!error) {
+      		for (var i = 0; i < tweets.length; i++) {
+        		results.push(tweets[i]);
+        		console.log(tweets[i].text);
+      		}
+    	}
+  	})
 }
 
 if (command === "spotify-this-song") {
@@ -24,6 +49,8 @@ if (command === "movie-this") {
 	// Create an empty variable for holding the movie name
 	var movie = '';
 
+	// Loop through all the words in the node argument
+	// And do a little for-loop magic to handle the inclusion of "+"s
 	for (var i = 3; i < nodeArgs.length; i++) {
     	if (i > 3 && i < nodeArgs.length) {
     	movie = movie + "+" + nodeArgs[i];
