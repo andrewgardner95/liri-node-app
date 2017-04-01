@@ -5,6 +5,7 @@
   "main": "keys.js",
   "dependencies": {
     "request": "^2.81.0",
+    "spotify": "git+https://github.com/peol/node-spotify.git",
     "twitter": "^1.7.0"
   },
   "devDependencies": {},

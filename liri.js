@@ -1,11 +1,8 @@
-// grab twitter keys and store them in a variable
-var twitterKeys = require("./keys.js");
-
-// Include the request npm package
+// Including npm packages
 var request = require("request");
-// Load the fs package to read and write
 var fs = require("fs");
 var twitter = require('twitter');
+var spotify = require('spotify');
 
 // the command is the third word in the terminal string
 var command = process.argv[2];
@@ -17,7 +14,7 @@ if (command === "my-tweets") {
 	//Set up an empty array to hold the tweets.
 	var results = [];
 
- 	// storing key into client variable
+ 	// storing twitter keys into a variable
  	var client = new twitter({
   		consumer_key: 'nkPsMKOGAWN75vp2NJLU1nJSb',
   		consumer_secret: 'XcjTSNhu44IJkji67Ca1i450955t7bddloAqfe3V4li3qNZNnp',
@@ -42,7 +39,33 @@ if (command === "my-tweets") {
 }
 
 if (command === "spotify-this-song") {
-	console.log("cats");
+	// Create an empty variable for holding the song title
+	var song = '';
+
+	// Loop through all the words in the node argument
+	// And do a little for-loop magic to handle the inclusion of "+"s
+	for (var i = 3; i < nodeArgs.length; i++) {
+    	if (i > 3 && i < nodeArgs.length) {
+    	song = song + "+" + nodeArgs[i];
+  		}
+  		else {
+    	song += nodeArgs[i];
+  		}
+	}
+
+	spotify.search({ type: 'track', query: song }, function(err, data) {
+    if ( err ) {
+        console.log('Error occurred: ' + err);
+        return;
+    }
+
+    // fetching JSON data and logging it
+    var songInfo = data.tracks.items[0];
+    console.log("Artist: " + songInfo.artists[0].name)
+    console.log("Song: " + songInfo.name)
+    console.log("Album: " + songInfo.album.name)
+    console.log("Preview Link: " + songInfo.preview_url)
+	});
 }
 
 if (command === "movie-this") {
@@ -61,13 +84,12 @@ if (command === "movie-this") {
 	}
 
 	// Run a request to the OMDB API with the movie specified
-	var queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&r=json";
+	var queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&r=json&tomatoes=true";
 
 	request(queryUrl, function(error, response, body) {
   	// If the request is successful
   		if (!error && response.statusCode === 200) {
     		// Parse the body of the site and recover just the imdbRating
-    		// (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
     		console.log("Title: " + JSON.parse(body).Title);
     		console.log("Year Released: " + JSON.parse(body).Year);
     		console.log("imdb Rating: " + JSON.parse(body).imdbRating);
@@ -75,12 +97,34 @@ if (command === "movie-this") {
     		console.log("Language: " + JSON.parse(body).Language);
     		console.log("Plot: " + JSON.parse(body).Plot);
     		console.log("Actors: " + JSON.parse(body).Actors);
-    	//	console.log("RT Rating: " + JSON.parse(body).Ratings.Source);
-    	//	console.log("RT URL: " + JSON.parse(body).Title);
+    		console.log("RT Rating: " + JSON.parse(body).tomatoMeter);
+    		console.log("RT URL: " + JSON.parse(body).tomatoURL);
   		}
 	});
 }
 
 if (command === "do-what-it-says") {
-	console.log("donkeys");
+	fs.readFile("random.txt", "utf8", function(error, data) {
+		// obtaining the song name and storing it in a variable
+		var autoCommand = data.split(',');
+		var autoSong = autoCommand[1]
+
+	// running the spotify search function to query I Want it That Way
+	spotify.search({ type: 'track', query: autoSong }, function(err, data) {
+    if ( err ) {
+        console.log('Error occurred: ' + err);
+        return;
+    }
+    // fetching JSON data and logging it
+    var songInfo = data.tracks.items[0];
+    console.log("Artist: " + songInfo.artists[0].name)
+    console.log("Song: " + songInfo.name)
+    console.log("Album: " + songInfo.album.name)
+    console.log("Preview Link: " + songInfo.preview_url)
+	});
+
+
+	});
+
+
 }
